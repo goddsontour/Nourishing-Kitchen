@@ -4,16 +4,18 @@ import RecipeEntry from './RecipeEntry';
 import { fetchRecipeFromUrl } from './utils/recipes';
 
 export default function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  // Temporarily bypass login for testing
+  const [isAuthenticated, setIsAuthenticated] = useState(true);
   const [recipes, setRecipes] = useState([]);
   const [url, setUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    const loggedIn = localStorage.getItem('authenticated') === 'true';
-    setIsAuthenticated(loggedIn);
-  }, []);
+  // Commenting out login effect
+  // useEffect(() => {
+  //   const loggedIn = localStorage.getItem('authenticated') === 'true';
+  //   setIsAuthenticated(loggedIn);
+  // }, []);
 
   const handleFetchClick = async () => {
     if (!url) return;
@@ -35,10 +37,6 @@ export default function App() {
     setRecipes(updatedRecipes);
     console.log('Updated recipes:', updatedRecipes);
   };
-
-  if (!isAuthenticated) {
-    return <Login onLogin={setIsAuthenticated} />;
-  }
 
   return (
     <div className="p-4 max-w-3xl mx-auto">
