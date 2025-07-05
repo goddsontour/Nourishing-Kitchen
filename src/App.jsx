@@ -1,21 +1,13 @@
-import { useState, useEffect } from 'react';
-import Login from './Login';
+import { useState } from 'react';
 import RecipeEntry from './RecipeEntry';
 import { fetchRecipeFromUrl } from './utils/recipes';
 
 export default function App() {
-  // Temporarily bypass login for testing
-  const [isAuthenticated, setIsAuthenticated] = useState(true);
+  // Bypassing login for testing
   const [recipes, setRecipes] = useState([]);
   const [url, setUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-
-  // Commenting out login effect
-  // useEffect(() => {
-  //   const loggedIn = localStorage.getItem('authenticated') === 'true';
-  //   setIsAuthenticated(loggedIn);
-  // }, []);
 
   const handleFetchClick = async () => {
     if (!url) return;
@@ -23,7 +15,7 @@ export default function App() {
     setError('');
     try {
       const recipe = await fetchRecipeFromUrl(url);
-      setRecipes((prev) => [...prev, recipe]);
+      setRecipes(prev => [...prev, recipe]);
       setUrl('');
     } catch (err) {
       console.error(err);
@@ -33,9 +25,24 @@ export default function App() {
     }
   };
 
-  const handleRecipesChange = (updatedRecipes) => {
+  const handleRecipesChange = updatedRecipes => {
     setRecipes(updatedRecipes);
-    console.log('Updated recipes:', updatedRecipes);
+  };
+
+  const renderMethod = method => {
+    let steps = [];
+    if (Array.isArray(method)) {
+      steps = method;
+    } else if (typeof method === 'string') {
+      steps = method.split(/\r?\n/).filter(Boolean);
+    }
+    return (
+      <ol className="list-decimal list-inside">
+        {steps.map((step, idx) => (
+          <li key={idx}>{step}</li>
+        ))}
+      </ol>
+    );
   };
 
   return (
@@ -47,7 +54,7 @@ export default function App() {
         <input
           type="url"
           value={url}
-          onChange={(e) => setUrl(e.target.value)}
+          onChange={e => setUrl(e.target.value)}
           placeholder="Enter recipe URL…"
           className="flex-grow p-2 border rounded"
         />
@@ -76,15 +83,7 @@ export default function App() {
               ))}
             </ul>
             <h4 className="mt-2 font-semibold">Method</h4>
-            {Array.isArray(r.method) ? (
-              <ol className="list-decimal list-inside">
-                {r.method.map((step, k) => (
-                  <li key={k}>{step}</li>
-                ))}
-              </ol>
-            ) : (
-              <p>{r.method}</p>
-            )}
+            {renderMethod(r.method)}
           </div>
         ))}
       </div>
