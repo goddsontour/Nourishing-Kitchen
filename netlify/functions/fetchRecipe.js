@@ -1,13 +1,30 @@
-// netlify/functions/fetchRecipe.js
-// Netlify Edge Runtime or Node 18+ with built-in fetch
-// This function scrapes recipe data via JSON-LD or falls back to simple HTML parsing
+import recipeScraper from 'recipe-scraper';
 
-exports.handler = async function(event, context) {
-  // Enable CORS
-  const headers = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Headers': 'Content-Type',
-    'Access-Control-Allow-Methods': 'GET,OPTIONS'
-  };
-  …
+// netlify/functions/fetchRecipe.js
+export const handler = async (event) => {
+  const url = event.queryStringParameters?.url;
+  if (!url) {
+    return {
+      statusCode: 400,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ error: 'Missing url parameter' }),
+    };
+  }
+
+  try {
+    // Scrape recipe from the provided URL
+    const data = await recipeScraper(url);
+    return {
+      statusCode: 200,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    };
+  } catch (err) {
+    console.error('Error scraping recipe:', err);
+    return {
+      statusCode: 500,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ error: err.message }),
+    };
+  }
 };
